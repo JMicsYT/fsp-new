@@ -26,7 +26,7 @@ export async function POST(request: Request) {
       )
       VALUES (
         ${id}, ${name}, ${email}, ${password}, ${role || "ATHLETE"}, 
-        ${region || ""}, ${organization || ""}, ${emailVerified || false}, ${now}, ${now}
+        ${region || ""}, ${organization || ""}, ${emailVerified ? new Date() : null}, ${now}, ${now}
       )
       RETURNING id, name, email, role, region, organization, "emailVerified", "createdAt", "updatedAt"
     `

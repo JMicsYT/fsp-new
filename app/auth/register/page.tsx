@@ -144,74 +144,9 @@ export default function RegisterPage() {
     setVerificationCode(e.target.value)
   }
 
-  const sendVerificationEmail = async () => {
-    try {
-      setIsLoading(true)
-      // Генерируем случайный 6-значный код
-      const code = Math.floor(100000 + Math.random() * 900000).toString()
-      setExpectedCode(code)
-
-      // Отправляем код на email через API
-      const response = await fetch("/api/auth/verify-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: formData.email, code }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || "Не удалось отправить код подтверждения")
-      }
-
-      toast({
-        title: "Код отправлен",
-        description: `Код подтверждения отправлен на ${formData.email}`,
-      })
-
-      setVerificationStep(true)
-    } catch (error: any) {
-      console.error("Error sending verification email:", error)
-
-      // В режиме разработки можно пропустить проверку email
-      if (process.env.NODE_ENV === "development") {
-        toast({
-          title: "Режим разработки",
-          description: "Пропускаем проверку email в режиме разработки",
-        })
-        setVerificationStep(true)
-        return
-      }
-
-      toast({
-        title: "Ошибка",
-        description:
-          error.message || "Не удалось отправить код подтверждения. Пожалуйста, проверьте email и попробуйте снова.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const verifyEmail = () => {
-    // В режиме разработки пропускаем проверку кода
-    if (process.env.NODE_ENV === "development" || verificationCode === expectedCode) {
-      registerUser()
-    } else {
-      toast({
-        title: "Ошибка",
-        description: "Неверный код подтверждения. Пожалуйста, проверьте и попробуйте снова.",
-        variant: "destructive",
-      })
-    }
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
+  
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Ошибка",
@@ -220,10 +155,10 @@ export default function RegisterPage() {
       })
       return
     }
-
-    // Отправляем код подтверждения
-    sendVerificationEmail()
+  
+    registerUser() // сразу регистрируем
   }
+  
 
   const registerUser = async () => {
     setIsLoading(true)
